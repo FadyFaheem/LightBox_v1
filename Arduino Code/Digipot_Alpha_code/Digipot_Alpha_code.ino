@@ -4,7 +4,7 @@
 #define digiPot 0x2C
 String serialString;
 void setup(){
-
+  Serial.println("Started");
   Wire.begin(); // Initialises main I2C connection
   Serial.begin(9600); // Sets up serial monitor
 
@@ -89,23 +89,6 @@ void loop() {
            Serial.println(n);
           }
 
-          if(serialString.indexOf(';') >0) {
-           Wire.beginTransmission(0x2F);
-           Wire.write(0x00);
-           Wire.write(n.toInt());
-           Wire.endTransmission();
-           Serial.println(n);
-          }
-
-          if(serialString.indexOf(':') >0) {
-           Wire.beginTransmission(0x2F);
-           Wire.write(0x01);
-           Wire.write(n.toInt());
-           Wire.endTransmission();
-           Serial.println(n);
-          }
-          
-          
          serialString=""; //clears variable for new input
       }
     }  
