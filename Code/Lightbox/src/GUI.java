@@ -5,7 +5,7 @@ import java.awt.event.MouseEvent;
 
 public class GUI extends Main {
 
-    public static JButton buttonSetup(String buttonText, int fontSize, int x, int y, int width, int height){
+    public static JButton buttonSetup(String buttonText, int fontSize, int x, int y, int width, int height, boolean enabled){
         JButton button = new JButton();
         button.setText(buttonText); // sets Button Text
         button.setBounds(x,y,width,height);  // Creates bounds for button
@@ -14,7 +14,7 @@ public class GUI extends Main {
         button.setFocusPainted(false); // removes ugly box around text
         button.setBackground(Color.decode("#ff8719")); // Changes color button to orange >:)
         button.addMouseListener(hoverColor); // Changes the button pressed color to a darker orange instead of Metal L&F
-        button.setEnabled(true);
+        button.setEnabled(enabled);
         return button;
     }
 
