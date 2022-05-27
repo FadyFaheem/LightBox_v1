@@ -32,13 +32,7 @@ public class Main extends JFrame implements ActionListener {
         setSize(1024,600);//set the size of the window to half the screen width and half the screen height//where to position the top left corner of the window
 
 
-
-
-
-
-
         // START MENU
-
 
         // LOGO
         ImageIcon logoNTexcal = new ImageIcon(ClassLoader.getSystemResource("NTexCalLogo.png"));
@@ -55,10 +49,12 @@ public class Main extends JFrame implements ActionListener {
         restartButton.addActionListener(this);
         MainWindow.add(restartButton);
 
+        // USB PORT LIST
         portList = new JComboBox<>();
         portList.setBounds(700,215,250,75);
         MainWindow.add(portList);
 
+        // Used for searching usb ports for Arduino
         SerialPort[] portNames = SerialPort.getCommPorts();
         for (SerialPort portName : portNames) {
             if (portName.getSystemPortName().equals("COM3") || portName.getSystemPortName().equals("ttyUSB0") || portName.getSystemPortName().equals("ttyACM0")) {
