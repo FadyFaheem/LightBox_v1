@@ -1,12 +1,12 @@
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -21,7 +21,13 @@ public class Main extends JFrame implements ActionListener {
     static SerialPort ardAccess;
     static boolean received;
 
+    // MAIN MENU
+    private int pageNumber;
+    private JButton backButton;
+    private JLabel topLabel;
+    private JButton[] mainMenuButtons = new JButton[3];
 
+    private ArrayList<String> sensors = new ArrayList<String>();
 
     public Main() {
         GUISetup();
@@ -71,10 +77,37 @@ public class Main extends JFrame implements ActionListener {
             }
         }
 
+        // Must stay here due to port list doesn't get populated until for loop
         connectButton = GUI.buttonSetup("Connect", 20, 750, 305, 150, 75, (portList.getItemCount() != 0));
         connectButton.addActionListener(this);
         MainWindow.add(connectButton);
 
+        // DEBUGING
+        disableStartMenu();
+
+        // MAIN MENU
+
+        topLabel = GUI.labelSetup("Main Menu", 30, 420, 25,200,100,true);
+        MainWindow.add(topLabel);
+
+        mainMenuButtons[0] = GUI.buttonSetup("buttonOne", 25, 55, 200, 300, 150, true);
+        mainMenuButtons[0].addActionListener(this);
+        MainWindow.add(mainMenuButtons[0]);
+
+        mainMenuButtons[1] = GUI.buttonSetup("buttonTwo", 25, 365, 200, 300, 150, true);
+        mainMenuButtons[1].addActionListener(this);
+        MainWindow.add(mainMenuButtons[1]);
+
+        mainMenuButtons[2] = GUI.buttonSetup("buttonThree", 25, 675,200,300,150, true);
+        mainMenuButtons[2].addActionListener(this);
+        MainWindow.add(mainMenuButtons[2]);
+
+        backButton = GUI.buttonSetup("Back",15,30,25,125,75, true);
+        backButton.addActionListener(this);
+        MainWindow.add(backButton);
+
+        disableMainMenu();
+        enableMainMenu();
     }
 
     // SWITCHING PAGES
@@ -101,6 +134,59 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
+    public void disableMainMenu(){
+        topLabel.setVisible(false);
+        mainMenuButtons[0].setVisible(false);
+        mainMenuButtons[1].setVisible(false);
+        mainMenuButtons[2].setVisible(false);
+        backButton.setVisible(false);
+    }
+
+    public void enableMainMenu(){
+        topLabel.setVisible(true);
+        topLabel.setText("Main Menu");
+
+        if (sensors.size() == 0){
+            tryReadingMainMenuConfig();
+        }
+
+
+        if (sensors.size() != 0) {
+            for (int i = 0; i < mainMenuButtons.length; i++){
+                if (sensors.size() > i) {
+                    mainMenuButtons[i].setVisible(true);
+                    mainMenuButtons[i].setText(sensors.get(i ));
+                }
+            }
+        }
+    }
+
+    public void tryReadingMainMenuConfig(){
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("src/MainMenuSensors.txt"));
+            String data;
+            while ((data = br.readLine()) != null){
+                sensors.add(data);
+            }
+            br.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void tryWriteMainMenuConfig(){
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("src/MainMenuSensors.txt"));
+            for (int i = 0; i < sensors.size(); i++){
+                bw.write(sensors.get(i) + "\n");
+            }
+            bw.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void arduinoWrite(String a){
         try{Thread.sleep(5);} catch(Exception ignored){}
         PrintWriter send = new PrintWriter(ardAccess.getOutputStream());
@@ -162,9 +248,8 @@ public class Main extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        //Main bob = new Main();
-        //bob.setVisible(true);
-
+        Main bob = new Main();
+        bob.setVisible(true);
     }
 
 }
