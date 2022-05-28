@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Lightbox:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Lightbox_jar</output-path>
+    <root id="archive" name="Lightbox.jar">
+      <element id="module-output" name="Lightbox" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/jSerialComm-2.7.0.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/NTexCalLogo.png" />
+    </root>
+  </artifact>
+</component>
