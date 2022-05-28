@@ -24,6 +24,8 @@ public class Main extends JFrame implements ActionListener {
     // MAIN MENU
     private int pageNumber;
     private JButton backButton;
+    private JButton addButton;
+    private JButton deleteButton;
     private JLabel topLabel;
     private JButton[] mainMenuButtons = new JButton[3];
 
@@ -102,9 +104,17 @@ public class Main extends JFrame implements ActionListener {
         mainMenuButtons[2].addActionListener(this);
         MainWindow.add(mainMenuButtons[2]);
 
-        backButton = GUI.buttonSetup("Back",15,30,25,125,75, true);
+        backButton = GUI.buttonSetup("Back",15,100,35,125,75, true);
         backButton.addActionListener(this);
         MainWindow.add(backButton);
+
+        deleteButton = GUI.buttonSetup("Delete",15,675,35,125,75, true);
+        deleteButton.addActionListener(this);
+        MainWindow.add(deleteButton);
+
+        addButton = GUI.buttonSetup("Add",15,825,35,125,75, true);
+        addButton.addActionListener(this);
+        MainWindow.add(addButton);
 
         disableMainMenu();
         enableMainMenu();
@@ -127,10 +137,12 @@ public class Main extends JFrame implements ActionListener {
         portList.setVisible(true);
         restartButton.setVisible(true);
 
-        if (ardAccess.isOpen()){ // Checks for connection before returning to main menu to ensure good connection
-            connectButton.setText("Disconnect");
-            portList.setEnabled(false);
-            startButton.setEnabled(true);
+        if (ardAccess != null){// Checks for connection before returning to main menu to ensure good connection
+            if (ardAccess.isOpen()) {
+                connectButton.setText("Disconnect");
+                portList.setEnabled(false);
+                startButton.setEnabled(true);
+            }
         }
     }
 
@@ -140,14 +152,19 @@ public class Main extends JFrame implements ActionListener {
         mainMenuButtons[1].setVisible(false);
         mainMenuButtons[2].setVisible(false);
         backButton.setVisible(false);
+        addButton.setVisible(false);
+        deleteButton.setVisible(false);
     }
 
     public void enableMainMenu(){
         topLabel.setVisible(true);
         topLabel.setText("Main Menu");
+        backButton .setVisible(true);
+        deleteButton.setVisible(true);
+        addButton.setVisible(true);
 
-        if (sensors.size() == 0){
-            tryReadingMainMenuConfig();
+        if (sensors.size() == 0) {
+            deleteButton.setEnabled(false);
         }
 
 
@@ -159,6 +176,13 @@ public class Main extends JFrame implements ActionListener {
                 }
             }
         }
+    }
+
+    public void enableAddSensor(){
+        topLabel.setVisible(true);
+        topLabel.setText("Add Sensor");
+        backButton.setVisible(true);
+
     }
 
     public void tryReadingMainMenuConfig(){
@@ -219,6 +243,20 @@ public class Main extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
+        if (e.getSource() == deleteButton) {
+
+        }
+
+        if (e.getSource() == addButton) {
+            disableMainMenu();
+            enableAddSensor();
+        }
+
+        if (e.getSource() == backButton) {
+            disableMainMenu();
+            enableStartMenu();
+        }
+
         if (e.getSource() == restartButton){
 
             System.exit(0);
@@ -243,7 +281,7 @@ public class Main extends JFrame implements ActionListener {
 
         if (e.getSource() == startButton){
             disableStartMenu();
-            //arduinoWirte("on");
+            enableMainMenu();
         }
     }
 
