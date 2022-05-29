@@ -8,7 +8,7 @@ public class GUI extends Main {
     public static JButton buttonSetup(String buttonText, int fontSize, int x, int y, int width, int height, boolean enabled){
         JButton button = new JButton();
         button.setText(buttonText); // sets Button Text
-        button.setBounds(x,y,width,height);  // Creates bounds for button
+        button.setBounds(x,y,width,height);  // Create bounds for button
         button.setFont(new Font("Myriad", Font.PLAIN, fontSize)); // Sets font to Myriad (because it looks better)
         button.setForeground(Color.BLACK); // Sets text font to white
         button.setFocusPainted(false); // removes ugly box around text
@@ -18,7 +18,7 @@ public class GUI extends Main {
         return button;
     }
 
-    static MouseAdapter hoverColor = new MouseAdapter() {
+    static MouseAdapter hoverColor = new MouseAdapter() { // I honestly have no clue how this works, however it does set up the button pressing animation
         @Override
         public void mousePressed(MouseEvent m){
             UIManager.put("Button.select", Color.decode("#ff8719").darker());
