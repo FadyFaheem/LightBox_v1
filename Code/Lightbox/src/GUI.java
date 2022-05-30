@@ -1,11 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class GUI extends Main {
 
-    public static JButton buttonSetup(String buttonText, int fontSize, int x, int y, int width, int height, boolean enabled){
+    public static JButton buttonSetup(String buttonText, int fontSize, int x, int y, int width, int height, ActionListener listener, boolean enabled){
         JButton button = new JButton();
         button.setText(buttonText); // sets Button Text
         button.setBounds(x,y,width,height);  // Create bounds for button
@@ -14,6 +15,7 @@ public class GUI extends Main {
         button.setFocusPainted(false); // removes ugly box around text
         button.setBackground(Color.decode("#ff8719")); // Changes color button to orange >:)
         button.addMouseListener(hoverColor); // Changes the button pressed color to a darker orange instead of Metal L&F
+        button.addActionListener(listener);
         button.setEnabled(enabled);
         return button;
     }

@@ -24,7 +24,7 @@ public class Main extends JFrame implements ActionListener {
     private JButton backButton, addButton, deleteButton, backPage, nextPage;
     private JLabel topLabel, pageLabel;
     private final JButton[] mainMenuButtons = new JButton[3];
-    private ArrayList<String> sensors = new ArrayList<>();
+    private final ArrayList<String> sensors = new ArrayList<>();
 
     // ADD SENSOR MENU
     private JTextField sensorTextField;
@@ -34,21 +34,21 @@ public class Main extends JFrame implements ActionListener {
     // SENSOR SET POINTS MENU
     private String sensorName;
     private JButton deleteSetPoint, addSetPoint, editSetPoint;
-    private JButton[] setPointButtons = new JButton[3];
+    private final JButton[] setPointButtons = new JButton[3];
 
-    private String[] measurements = {
+    private final String[] measurements = {
             "fc",
             "lum",
             "μW"
 
     };
 
-    private ArrayList<String> setPoints = new ArrayList<>();
-    private ArrayList<String> setPointsVoltages = new ArrayList<>();
+    private final ArrayList<String> setPoints = new ArrayList<>();
+    private final ArrayList<String> setPointsVoltages = new ArrayList<>();
 
     // SENSOR SET POINT ADD/EDIT MENU
 
-    private String[] increment = {
+    private final String[] increment = {
             "1",
             "5",
             "10",
@@ -64,7 +64,7 @@ public class Main extends JFrame implements ActionListener {
             lowerVoltageButton, higherVoltageButton,
             lowerIncrementVoltageButton, higherIncrementVoltageButton, addSetPointButton, testButton;
 
-    private JLabel setPointLabel, setPointIncrementLabel, voltageLabel, voltageIncrementLabel;
+    private JLabel setPointLabel, setPointIncrementLabel, voltageLabel, voltageIncrementLabel, setPointIdentifier, voltageIdentifier, voltageConvertLabel;
 
     public Main() {
         GUISetup();
@@ -93,12 +93,10 @@ public class Main extends JFrame implements ActionListener {
         MainWindow.add(logoPlaceHolder);
 
         // BUTTONS
-        startButton = GUI.buttonSetup("Start", 60, 700, 100, 250, 100, true); // Initiates Button for setup and adds text
-        startButton.addActionListener(this);
+        startButton = GUI.buttonSetup("Start", 60, 700, 100, 250, 100,this, true); // Initiates Button for setup and adds text
         MainWindow.add(startButton);
 
-        restartButton = GUI.buttonSetup("Reset", 30, 750, 400, 150, 75, true);
-        restartButton.addActionListener(this);
+        restartButton = GUI.buttonSetup("Reset", 30, 750, 400, 150, 75,this, true);
         MainWindow.add(restartButton);
 
         // USB PORT LIST
@@ -115,8 +113,7 @@ public class Main extends JFrame implements ActionListener {
         }
 
         // Must stay here due to port list doesn't get populated until for loop
-        connectButton = GUI.buttonSetup("Connect", 20, 750, 305, 150, 75, (portList.getItemCount() != 0));
-        connectButton.addActionListener(this);
+        connectButton = GUI.buttonSetup("Connect", 20, 750, 305, 150, 75,this, (portList.getItemCount() != 0));
         MainWindow.add(connectButton);
 
         // MAIN MENU
@@ -127,36 +124,28 @@ public class Main extends JFrame implements ActionListener {
         pageLabel = GUI.labelSetup("Page # of #",20,418,450,200,100,true);
         MainWindow.add(pageLabel);
 
-        mainMenuButtons[0] = GUI.buttonSetup("buttonOne", 25, 130, 225, 250, 125, true);
-        mainMenuButtons[0].addActionListener(this);
+        mainMenuButtons[0] = GUI.buttonSetup("buttonOne", 25, 130, 225, 250, 125,this, true);
         MainWindow.add(mainMenuButtons[0]);
 
-        mainMenuButtons[1] = GUI.buttonSetup("buttonTwo", 25, 390, 225, 250, 125, true);
-        mainMenuButtons[1].addActionListener(this);
+        mainMenuButtons[1] = GUI.buttonSetup("buttonTwo", 25, 390, 225, 250, 125,this, true);
         MainWindow.add(mainMenuButtons[1]);
 
-        mainMenuButtons[2] = GUI.buttonSetup("buttonThree", 25, 650,225,250,125, true);
-        mainMenuButtons[2].addActionListener(this);
+        mainMenuButtons[2] = GUI.buttonSetup("buttonThree", 25, 650,225,250,125,this, true);
         MainWindow.add(mainMenuButtons[2]);
 
-        backPage = GUI.buttonSetup("<",25,20,225,100,125,true);
-        backPage.addActionListener(this);
+        backPage = GUI.buttonSetup("<",25,20,225,100,125,this,true);
         MainWindow.add(backPage);
 
-        nextPage = GUI.buttonSetup(">", 25, 910, 225, 100,125, true);
-        nextPage.addActionListener(this);
+        nextPage = GUI.buttonSetup(">", 25, 910, 225, 100,125,this, true);
         MainWindow.add(nextPage);
 
-        backButton = GUI.buttonSetup("Back",15,100,35,125,75, true);
-        backButton.addActionListener(this);
+        backButton = GUI.buttonSetup("Back",15,100,35,125,75,this, true);
         MainWindow.add(backButton);
 
-        deleteButton = GUI.buttonSetup("Delete",15,675,35,125,75, true);
-        deleteButton.addActionListener(this);
+        deleteButton = GUI.buttonSetup("Delete",15,675,35,125,75,this, true);
         MainWindow.add(deleteButton);
 
-        addButton = GUI.buttonSetup("Add",15,825,35,125,75, true);
-        addButton.addActionListener(this);
+        addButton = GUI.buttonSetup("Add",15,825,35,125,75,this, true);
         MainWindow.add(addButton);
 
         // ADD SENSOR MENU
@@ -164,37 +153,39 @@ public class Main extends JFrame implements ActionListener {
         sensorTextField.setBounds(265,200,500,50);
         MainWindow.add(sensorTextField);
 
-        saveButton = GUI.buttonSetup("Save", 15, 445, 300,150, 75, true);
-        saveButton.addActionListener(this);
+        saveButton = GUI.buttonSetup("Save", 15, 445, 300,150, 75,this, true);
         MainWindow.add(saveButton);
 
         // SENSOR SET POINTS
 
-        deleteSetPoint = GUI.buttonSetup("Delete", 15, 675,35,125,75, true);
-        deleteSetPoint.addActionListener(this);
+        deleteSetPoint = GUI.buttonSetup("Delete", 15, 675,35,125,75,this, true);
         MainWindow.add(deleteSetPoint);
 
-        addSetPoint = GUI.buttonSetup("Add", 15 ,825,35,125,75,true);
-        addSetPoint.addActionListener(this);
-        MainWindow.add(addSetPoint);
+        addSetPoint = GUI.buttonSetup("Add", 15 ,825,35,125,75,this,true);
+        MainWindow.add(addSetPoint, deleteSetPoint);
 
-        editSetPoint = GUI.buttonSetup("Edit", 15, 750, 120, 125,75, true);
-        editSetPoint.addActionListener(this);
+        editSetPoint = GUI.buttonSetup("Edit", 15, 750, 120, 125,75,this, true);
         MainWindow.add(editSetPoint);
 
-        setPointButtons[0] = GUI.buttonSetup("buttonOne", 25, 130, 225, 250, 125, true);
-        setPointButtons[0].addActionListener(this);
+        setPointButtons[0] = GUI.buttonSetup("buttonOne", 25, 130, 225, 250, 125,this, true);
         MainWindow.add(setPointButtons[0]);
 
-        setPointButtons[1] = GUI.buttonSetup("buttonTwo", 25, 390, 225, 250, 125, true);
-        setPointButtons[1].addActionListener(this);
+        setPointButtons[1] = GUI.buttonSetup("buttonTwo", 25, 390, 225, 250, 125,this,true);
         MainWindow.add(setPointButtons[1]);
 
-        setPointButtons[2] = GUI.buttonSetup("buttonThree", 25, 650,225,250,125, true);
-        setPointButtons[2].addActionListener(this);
+        setPointButtons[2] = GUI.buttonSetup("buttonThree", 25, 650,225,250,125,this, true);
         MainWindow.add(setPointButtons[2]);
 
         // ADD SENSOR SET POINT MENU
+
+        voltageConvertLabel = GUI.labelSetup("5.00 V", 20, 50,200,200,100,true);
+        MainWindow.add(voltageConvertLabel);
+
+        setPointIdentifier = GUI.labelSetup("Set Point", 20, 418,50,200,100,true);
+        MainWindow.add(setPointIdentifier);
+
+        voltageIdentifier = GUI.labelSetup("Voltage (mV)", 20, 418, 250,200,100,true);
+        MainWindow.add(voltageIdentifier);
 
         setPointLabel = GUI.labelSetup("#1", 20, 418, 100,200,100,true);
         MainWindow.add(setPointLabel);
@@ -208,45 +199,38 @@ public class Main extends JFrame implements ActionListener {
         voltageIncrementLabel = GUI.labelSetup("#4", 20, 418, 375,200,100,true);
         MainWindow.add(voltageIncrementLabel);
 
-        measurementTypeButton = GUI.buttonSetup("fc", 20, 850, 245, 100, 100, true);
-        measurementTypeButton.addActionListener(this);
+        measurementTypeButton = GUI.buttonSetup("fc", 20, 850, 245, 100, 100,this, true);
         MainWindow.add(measurementTypeButton);
 
-        lowerSetPointButton = GUI.buttonSetup("<", 15, 325,110, 75, 75, true);
-        lowerSetPointButton.addActionListener(this);
+        lowerSetPointButton = GUI.buttonSetup("<", 15, 325,110, 75, 75,this, true);
         MainWindow.add(lowerSetPointButton);
 
-        lowerIncrementSetPointButton = GUI.buttonSetup("<", 15, 425, 200,50, 50, true);
-        lowerIncrementSetPointButton.addActionListener(this);
+        lowerIncrementSetPointButton = GUI.buttonSetup("<", 15, 425, 200,50, 50,this, true);
         MainWindow.add(lowerIncrementSetPointButton);
 
-        lowerVoltageButton = GUI.buttonSetup("<", 15, 325,310, 75,75, true);
-        lowerVoltageButton.addActionListener(this);
+        lowerVoltageButton = GUI.buttonSetup("<", 15, 325,310, 75,75,this, true);
         MainWindow.add(lowerVoltageButton);
 
-        lowerIncrementVoltageButton = GUI.buttonSetup("<", 15, 425, 400,50, 50, true);
-        lowerIncrementVoltageButton.addActionListener(this);
+        lowerIncrementVoltageButton = GUI.buttonSetup("<", 15, 425, 400,50, 50,this, true);
         MainWindow.add(lowerIncrementVoltageButton);
 
-        higherSetPointButton = GUI.buttonSetup(">", 15, 625,110, 75, 75, true);
-        higherSetPointButton.addActionListener(this);
+        higherSetPointButton = GUI.buttonSetup(">", 15, 625,110, 75, 75,this, true);
         MainWindow.add(higherSetPointButton);
 
-        higherIncrementSetPointButton = GUI.buttonSetup(">", 15, 560,200, 50, 50, true);
-        higherIncrementSetPointButton.addActionListener(this);
+        higherIncrementSetPointButton = GUI.buttonSetup(">", 15, 560,200, 50, 50,this, true);
         MainWindow.add(higherIncrementSetPointButton);
 
-        higherVoltageButton = GUI.buttonSetup(">", 15, 625,310, 75, 75, true);
-        higherVoltageButton.addActionListener(this);
+        higherVoltageButton = GUI.buttonSetup(">", 15, 625,310, 75, 75,this, true);
         MainWindow.add(higherVoltageButton);
 
-        higherIncrementVoltageButton = GUI.buttonSetup(">", 15, 560,400, 50, 50, true);
-        higherIncrementVoltageButton.addActionListener(this);
+        higherIncrementVoltageButton = GUI.buttonSetup(">", 15, 560,400, 50, 50,this, true);
         MainWindow.add(higherIncrementVoltageButton);
 
-        addSetPointButton = GUI.buttonSetup("Add", 20, 445,475, 150, 75, true);
-        addSetPointButton.addActionListener(this);
+        addSetPointButton = GUI.buttonSetup("Add", 20, 445,475, 150, 75,this, true);
         MainWindow.add(addSetPointButton);
+
+        testButton = GUI.buttonSetup("Test", 20, 100,275,100,50,this, true);
+        MainWindow.add(testButton);
 
         // DEBUGGING
         //disableStartMenu();
@@ -403,8 +387,6 @@ public class Main extends JFrame implements ActionListener {
                     i = 0;
                 }
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -472,7 +454,12 @@ public class Main extends JFrame implements ActionListener {
         voltageLabel.setText(voltage + "");
         setPointIncrementLabel.setText(increment[pointInc]);
         voltageIncrementLabel.setText(increment[voltageInc]);
+        voltageConvertLabel.setText((Integer.parseInt(voltageLabel.getText()) / 1000.0) + " V");
         addSetPointButton.setVisible(true);
+        setPointIdentifier.setVisible(true);
+        voltageIdentifier.setVisible(true);
+        voltageConvertLabel.setVisible(true);
+        testButton.setVisible(true);
     }
 
     public void disableAddEditSetPointVoltageMenu(){
@@ -491,6 +478,10 @@ public class Main extends JFrame implements ActionListener {
         higherVoltageButton.setVisible(false);
         higherIncrementVoltageButton.setVisible(false);
         addSetPointButton.setVisible(false);
+        setPointIdentifier.setVisible(false);
+        voltageIdentifier.setVisible(false);
+        voltageConvertLabel.setVisible(false);
+        testButton.setVisible(false);
     }
 
     public void tryReadingMainMenuConfig(){
@@ -607,6 +598,10 @@ public class Main extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
+        if (e.getSource() == testButton) {
+            
+        }
+
         if (e.getSource() == setPointButtons[0]) {
             for (int i = 0; i < setPoints.size(); i++) {
                 if (setPoints.get(i).equals(setPointButtons[0].getText())){
@@ -634,8 +629,6 @@ public class Main extends JFrame implements ActionListener {
         if (e.getSource() == addSetPointButton) {
             setPoints.add(setPointLabel.getText() + " " + measurementTypeButton.getText());
             setPointsVoltages.add(voltageLabel.getText());
-            System.out.println(setPoints.toString());
-            System.out.println(setPointsVoltages.toString());
             tryWritingSetPointConfig();
             disableAddEditSetPointVoltageMenu();
             enableSetPointMenu(sensorName);
@@ -655,6 +648,7 @@ public class Main extends JFrame implements ActionListener {
                 voltage = 0;
             }
             voltageLabel.setText(voltage + "");
+            voltageConvertLabel.setText((Integer.parseInt(voltageLabel.getText()) / 1000.0) + " V");
         }
 
         if (e.getSource() == higherSetPointButton) {
@@ -665,6 +659,7 @@ public class Main extends JFrame implements ActionListener {
         if (e.getSource() == higherVoltageButton) {
             voltage += Integer.parseInt(voltageIncrementLabel.getText());
             voltageLabel.setText(voltage + "");
+            voltageConvertLabel.setText((Integer.parseInt(voltageLabel.getText()) / 1000.0) + " V");
         }
 
         if (e.getSource() == lowerIncrementSetPointButton) {
@@ -829,6 +824,9 @@ public class Main extends JFrame implements ActionListener {
                 enableMainMenu();
                 sensorName = "";
             } else if (setPointLabel.isVisible()) {
+                if (ardAccess != null) {
+                    arduinoWrite("off");
+                }
                 disableAddEditSetPointVoltageMenu();
                 enableSetPointMenu(sensorName);
             }
