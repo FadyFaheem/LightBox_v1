@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.ceil;
 
@@ -59,10 +60,12 @@ public class Main extends JFrame implements ActionListener {
 
     private int pointInc, voltageInc, setPoint, voltage = 0;
     int measurementCount = 0;
+    private boolean isDeleteSetPointEnabled;
     private JButton measurementTypeButton, lowerSetPointButton, higherSetPointButton,
             lowerIncrementSetPointButton, higherIncrementSetPointButton,
             lowerVoltageButton, higherVoltageButton,
-            lowerIncrementVoltageButton, higherIncrementVoltageButton, addSetPointButton, testButton;
+            lowerIncrementVoltageButton, higherIncrementVoltageButton, addSetPointButton, testButton,
+            onButton, offButton;
 
     private JLabel setPointLabel, setPointIncrementLabel, voltageLabel, voltageIncrementLabel, setPointIdentifier, voltageIdentifier, voltageConvertLabel;
 
@@ -162,7 +165,13 @@ public class Main extends JFrame implements ActionListener {
         MainWindow.add(deleteSetPoint);
 
         addSetPoint = GUI.buttonSetup("Add", 15 ,825,35,125,75,this,true);
-        MainWindow.add(addSetPoint, deleteSetPoint);
+        MainWindow.add(addSetPoint);
+
+        onButton = GUI.buttonSetup("On", 15 ,825,460,125,75,this,true);
+        MainWindow.add(onButton);
+
+        offButton = GUI.buttonSetup("Off", 15 ,675,460,125,75,this,true);
+        MainWindow.add(offButton);
 
         editSetPoint = GUI.buttonSetup("Edit", 15, 750, 120, 125,75,this, true);
         MainWindow.add(editSetPoint);
@@ -337,6 +346,8 @@ public class Main extends JFrame implements ActionListener {
         addSetPoint.setVisible(true);
         deleteSetPoint.setVisible(true);
         editSetPoint.setVisible(true);
+        onButton.setVisible(true);
+        offButton.setVisible(true);
         setPointButtons[0].setVisible(false);
         setPointButtons[1].setVisible(false);
         setPointButtons[2].setVisible(false);
@@ -429,6 +440,8 @@ public class Main extends JFrame implements ActionListener {
         setPointButtons[0].setVisible(false);
         setPointButtons[1].setVisible(false);
         setPointButtons[2].setVisible(false);
+        onButton.setVisible(false);
+        offButton.setVisible(false);
     }
 
     public void enableAddEditSetPointVoltageMenu(){
@@ -483,6 +496,30 @@ public class Main extends JFrame implements ActionListener {
         voltageConvertLabel.setVisible(false);
         testButton.setVisible(false);
     }
+
+    public void deleteSetPoint(int button) {
+        for (int i = 0; i < setPoints.size(); i++) {
+            if (setPoints.get(i).equals(setPointButtons[button].getText())) {
+                setPoints.remove(i);
+                setPointsVoltages.remove(i);
+                tryWritingSetPointConfig();
+            }
+        }
+
+        setPointButtons[0].setVisible(false);
+        setPointButtons[1].setVisible(false);
+        setPointButtons[2].setVisible(false);
+        if (setPoints.size() != 0 && setPointsVoltages.size() != 0) {
+            deleteSetPoint.setEnabled(true);
+            for (int i = 0; i < setPointButtons.length; i++) {
+                if (setPoints.size() > i){
+                    setPointButtons[i].setVisible(true);
+                    setPointButtons[i].setText(setPoints.get(i));
+                }
+            }
+        }
+    }
+
 
     public void tryReadingMainMenuConfig(){
         try {
@@ -595,34 +632,73 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
+    public void turnLightControl(int button) {
+        for (int i = 0; i < setPoints.size(); i++) {
+            if (setPoints.get(i).equals(setPointButtons[button].getText())){
+                if (ardAccess != null) {
+                    try {
+                        arduinoWrite("v");
+                        TimeUnit.SECONDS.sleep(1);
+                        arduinoWrite(setPointsVoltages.get(i));
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+        }
+    }
+
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
+        if (e.getSource() == onButton) {
+            if (ardAccess != null){
+                arduinoWrite("on");
+            }
+        }
+
+        if (e.getSource() == offButton) {
+            if (ardAccess != null) {
+                arduinoWrite("off");
+            }
+        }
+
         if (e.getSource() == testButton) {
-            
+            if (ardAccess != null) {
+                try {
+                    arduinoWrite("on");
+                    TimeUnit.SECONDS.sleep(1);
+                    arduinoWrite("v");
+                    TimeUnit.SECONDS.sleep(1);
+                    arduinoWrite(voltageLabel.getText());
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
         }
 
         if (e.getSource() == setPointButtons[0]) {
-            for (int i = 0; i < setPoints.size(); i++) {
-                if (setPoints.get(i).equals(setPointButtons[0].getText())){
-                    System.out.println(setPointsVoltages.get(i));
-                }
+            if (isDeleteSetPointEnabled) {
+                deleteSetPoint(0);
+            } else {
+                turnLightControl(0);
             }
         }
 
         if (e.getSource() == setPointButtons[1]) {
-            for (int i = 0; i < setPoints.size(); i++) {
-                if (setPoints.get(i).equals(setPointButtons[1].getText())){
-                    System.out.println(setPointsVoltages.get(i));
-                }
+            if (isDeleteSetPointEnabled) {
+                deleteSetPoint(1);
+            } else {
+                turnLightControl(1);
             }
         }
 
         if (e.getSource() == setPointButtons[2]) {
-            for (int i = 0; i < setPoints.size(); i++) {
-                if (setPoints.get(i).equals(setPointButtons[2].getText())){
-                    System.out.println(setPointsVoltages.get(i));
-                }
+            if (isDeleteSetPointEnabled) {
+                deleteSetPoint(2);
+            } else {
+                turnLightControl(2);
             }
         }
 
@@ -710,7 +786,23 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == deleteSetPoint) {
-            System.out.println(3);
+            if (!isDeleteSetPointEnabled) {
+                isDeleteSetPointEnabled = true;
+                backButton.setEnabled(false);
+                addSetPoint.setEnabled(false);
+                editSetPoint.setEnabled(false);
+                offButton.setEnabled(false);
+                onButton.setEnabled(false);
+                topLabel.setText("Delete Mode: ON");
+            } else if (isDeleteSetPointEnabled){
+                isDeleteSetPointEnabled = false;
+                backButton.setEnabled(true);
+                addSetPoint.setEnabled(true);
+                editSetPoint.setEnabled(true);
+                offButton.setEnabled(true);
+                onButton.setEnabled(true);
+                topLabel.setText(sensorName + " Menu");
+            }
         }
 
         if (e.getSource() == deleteButton) {
@@ -833,7 +925,7 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == restartButton){
-
+            arduinoWrite("off");
             System.exit(0);
         }
 
@@ -857,6 +949,7 @@ public class Main extends JFrame implements ActionListener {
         if (e.getSource() == startButton){
             disableStartMenu();
             enableMainMenu();
+
         }
     }
 
