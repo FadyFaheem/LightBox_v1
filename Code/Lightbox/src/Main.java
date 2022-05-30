@@ -607,10 +607,35 @@ public class Main extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
+        if (e.getSource() == setPointButtons[0]) {
+            for (int i = 0; i < setPoints.size(); i++) {
+                if (setPoints.get(i).equals(setPointButtons[0].getText())){
+                    System.out.println(setPointsVoltages.get(i));
+                }
+            }
+        }
+
+        if (e.getSource() == setPointButtons[1]) {
+            for (int i = 0; i < setPoints.size(); i++) {
+                if (setPoints.get(i).equals(setPointButtons[1].getText())){
+                    System.out.println(setPointsVoltages.get(i));
+                }
+            }
+        }
+
+        if (e.getSource() == setPointButtons[2]) {
+            for (int i = 0; i < setPoints.size(); i++) {
+                if (setPoints.get(i).equals(setPointButtons[2].getText())){
+                    System.out.println(setPointsVoltages.get(i));
+                }
+            }
+        }
 
         if (e.getSource() == addSetPointButton) {
             setPoints.add(setPointLabel.getText() + " " + measurementTypeButton.getText());
             setPointsVoltages.add(voltageLabel.getText());
+            System.out.println(setPoints.toString());
+            System.out.println(setPointsVoltages.toString());
             tryWritingSetPointConfig();
             disableAddEditSetPointVoltageMenu();
             enableSetPointMenu(sensorName);
@@ -799,6 +824,8 @@ public class Main extends JFrame implements ActionListener {
                 enableMainMenu();
             } else if (topLabel.getText().equals(sensorName + " Menu") && topLabel.isVisible()) {
                 disableSetPointMenu();
+                setPoints.removeAll(setPoints);
+                setPointsVoltages.removeAll(setPointsVoltages);
                 enableMainMenu();
                 sensorName = "";
             } else if (setPointLabel.isVisible()) {
