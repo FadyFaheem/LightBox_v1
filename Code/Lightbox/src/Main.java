@@ -9,7 +9,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
-
 import static java.lang.Math.ceil;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored"})
@@ -39,6 +38,24 @@ public class Main extends JFrame implements ActionListener {
     private JButton deleteSetPoint, addSetPoint, editSetPoint;
     private JButton[] setPointButtons = new JButton[3];
 
+    private String[] measurements = {
+            "fc",
+            "lum",
+            "μW"
+
+    };
+
+    private ArrayList<String> setPoints = new ArrayList<>();
+    private ArrayList<String> setPointsVoltages = new ArrayList<>();
+
+    // SENSOR SET POINT ADD/EDIT MENU
+    int measurementCount = 0;
+    private JButton measurementTypeButton, lowerSetPointButton, higherSetPointButton,
+            lowerIncrementSetPointButton, higherIncrementSetPointButton,
+            lowerVoltageButton, higherVoltageButton,
+            lowerIncrementVoltageButton, higherIncrementVoltageButton;
+
+    private JLabel setPointLabel, setPointIncrementLabel, voltageLabel, voltageIncrementLabel;
 
     public Main() {
         GUISetup();
@@ -168,11 +185,43 @@ public class Main extends JFrame implements ActionListener {
         setPointButtons[2].addActionListener(this);
         MainWindow.add(setPointButtons[2]);
 
+        // ADD SENSOR SET POINT MENU
+
+        setPointLabel = GUI.labelSetup("#1", 20, 418, 100,200,100,true);
+        MainWindow.add(setPointLabel);
+
+        setPointIncrementLabel = GUI.labelSetup("#2", 20, 418, 175,200,100,true);
+        MainWindow.add(setPointIncrementLabel);
+
+        voltageLabel = GUI.labelSetup("#3", 20, 418, 300,200,100,true);
+        MainWindow.add(voltageLabel);
+
+        voltageIncrementLabel = GUI.labelSetup("#4", 20, 418, 375,200,100,true);
+        MainWindow.add(voltageIncrementLabel);
+
+        measurementTypeButton = GUI.buttonSetup("fc", 20, 850, 245, 100, 100, true);
+        measurementTypeButton.addActionListener(this);
+        MainWindow.add(measurementTypeButton);
+
+        lowerSetPointButton = GUI.buttonSetup("<", 15, 325,110, 75, 75, true);
+        lowerSetPointButton.addActionListener(this);
+        MainWindow.add(lowerSetPointButton);
+
+        lowerIncrementSetPointButton = GUI.buttonSetup("<", 15, 425, 200,50, 50, true);
+        lowerIncrementSetPointButton.addActionListener(this);
+        MainWindow.add(lowerIncrementSetPointButton);
+
+        //, lowerSetPointButton, higherSetPointButton,
+        //            lowerIncrementSetPointButton, higherIncrementSetPointButton,
+        //            lowerVoltageButton, higherVoltageButton,
+        //            lowerIncrementVoltageButton, higherIncrementVoltageButton;
+
         // DEBUGGING
-        //disableStartMenu();
+        disableStartMenu();
         disableMainMenu();
         disableAddSensor();
         disableSetPointMenu();
+        //disableAddEditSetPointVoltageMenu();
     }
 
     // SWITCHING PAGES
@@ -247,8 +296,6 @@ public class Main extends JFrame implements ActionListener {
                 }
             }
         }
-
-
     }
 
     public void enableAddSensor(){
@@ -274,20 +321,66 @@ public class Main extends JFrame implements ActionListener {
         addSetPoint.setVisible(true);
         deleteSetPoint.setVisible(true);
         editSetPoint.setVisible(true);
-        setPointButtons[0].setVisible(true);
-        setPointButtons[1].setVisible(true);
-        setPointButtons[2].setVisible(true);
+        setPointButtons[0].setVisible(false);
+        setPointButtons[1].setVisible(false);
+        setPointButtons[2].setVisible(false);
 
         try {
-            File sensorFile = new File(sensorName + "Data.txt");
+            String filePath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String jarName = filePath.substring(filePath.lastIndexOf("/") + 1);
+            filePath = filePath.replace(jarName, "");
+            File sensorFile = new File(filePath + (sensorName + "Data.txt"));
             sensorFile.createNewFile();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        if (setPoints.size() == 0 && setPointsVoltages.size() == 0) {
+            tryReadingSetPointConfig();
+        }
+
+        if (setPoints.size() != 0 && setPointsVoltages.size() != 0) {
+            deleteSetPoint.setEnabled(true);
+            for (int i = 0; i < setPointButtons.length; i++) {
+                if (setPoints.size() > i){
+                    System.out.println(i);
+                    setPointButtons[i].setVisible(true);
+                    setPointButtons[i].setText(setPoints.get(i));
+                }
+            }
+        }
+
+    }
+
+    public void tryReadingSetPointConfig() {
+        try {
+            String filePath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String jarName = filePath.substring(filePath.lastIndexOf("/") + 1);
+            filePath = filePath.replace(jarName, "");
+            File sensorFile = new File(filePath + (sensorName + "Data.txt"));
+            String absPath = sensorFile.getPath();
+            BufferedReader br = new BufferedReader(new FileReader(absPath));
+            String data;
+            int i = 0;
+            while ((data = br.readLine()) != null){
+                if (i == 0) {
+                    setPoints.add(data);
+                    i = 1;
+                } else if (i == 1) {
+                    setPointsVoltages.add(data);
+                    i = 0;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
     public void disableSetPointMenu() {
         topLabel.setVisible(false);
-        sensorName = "";
         backButton.setVisible(false);
         deleteSetPoint.setVisible(false);
         addSetPoint.setVisible(false);
@@ -297,11 +390,34 @@ public class Main extends JFrame implements ActionListener {
         setPointButtons[2].setVisible(false);
     }
 
+    public void enableAddEditSetPointVoltageMenu(){
+        backButton.setVisible(true);
+        setPointLabel.setVisible(true);
+        setPointIncrementLabel.setVisible(true);
+        voltageLabel.setVisible(true);
+        voltageIncrementLabel.setVisible(true);
+        measurementTypeButton.setVisible(true);
+    }
+
+    public void disableAddEditSetPointVoltageMenu(){
+        backButton.setVisible(false);
+        setPointLabel.setVisible(false);
+        setPointIncrementLabel.setVisible(false);
+        voltageLabel.setVisible(false);
+        voltageIncrementLabel.setVisible(false);
+        measurementTypeButton.setVisible(false);
+
+    }
+
     public void tryReadingMainMenuConfig(){
         try {
-            File mainMenu = new File("MainMenuData.txt");
+            String filePath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String jarName = filePath.substring(filePath.lastIndexOf("/") + 1);
+            filePath = filePath.replace(jarName, "");
+            File mainMenu = new File(filePath + "MainMenuData.txt");
+            String absPath = mainMenu.getPath();
             mainMenu.createNewFile();
-            BufferedReader br = new BufferedReader(new FileReader("MainMenuData.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(absPath));
             String data;
             while ((data = br.readLine()) != null){
                 sensors.add(data);
@@ -314,9 +430,13 @@ public class Main extends JFrame implements ActionListener {
 
     public void tryWriteMainMenuConfig(){
         try {
-            File mainMenu = new File("MainMenuData.txt");
+            String filePath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String jarName = filePath.substring(filePath.lastIndexOf("/") + 1);
+            filePath = filePath.replace(jarName, "");
+            File mainMenu = new File(filePath + "MainMenuData.txt");
+            String absPath = mainMenu.getPath();
             mainMenu.createNewFile();
-            BufferedWriter bw = new BufferedWriter(new FileWriter("MainMenuData.txt"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(absPath));
             for (String sensor : sensors) {
                 bw.write(sensor + "\n");
             }
@@ -325,29 +445,12 @@ public class Main extends JFrame implements ActionListener {
             throw new RuntimeException(e);
         }
     }
+
     public void arduinoWrite(String a){
         try{Thread.sleep(5);} catch(Exception ignored){}
         PrintWriter send = new PrintWriter(ardAccess.getOutputStream());
         send.print(a);
         send.flush();
-    }
-
-    //Reads information back from last write (DEBUG ONLY)
-    public void arduinoRead(){
-        Scanner info = new Scanner(ardAccess.getInputStream());
-        ardAccess.addDataListener(new SerialPortDataListener() {
-            @Override
-            public int getListeningEvents() {
-                return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
-            }
-            @Override
-            public void serialEvent(SerialPortEvent serialPortEvent) {
-                String input;
-                input = info.nextLine();
-                System.out.println(input);
-                received=true;
-            }
-        });
     }
 
     public void deleteMode(int button) {
@@ -419,10 +522,19 @@ public class Main extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        if (e.getSource() == measurementTypeButton) {
+            measurementCount++;
+            if (measurementCount < 3) {
+                measurementTypeButton.setText(measurements[measurementCount]);
+            } else {
+                measurementCount = 0;
+                measurementTypeButton.setText(measurements[measurementCount]);
+            }
+        }
 
         if (e.getSource() == addSetPoint){
-            System.out.println(1);
+            disableSetPointMenu();
+            enableAddEditSetPointVoltageMenu();
         }
 
         if (e.getSource() == editSetPoint){
@@ -531,16 +643,19 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == backButton) {
-            if (topLabel.getText().equals("Main Menu")) {
+            if (topLabel.getText().equals("Main Menu") && topLabel.isVisible()) {
                 disableMainMenu();
                 enableStartMenu();
-            } else if (topLabel.getText().equals("Add Sensor")) {
+            } else if (topLabel.getText().equals("Add Sensor") && topLabel.isVisible()) {
                 disableAddSensor();
                 enableMainMenu();
-            } else if (topLabel.getText().equals(sensorName + " Menu")) {
+            } else if (topLabel.getText().equals(sensorName + " Menu") && topLabel.isVisible()) {
                 disableSetPointMenu();
                 enableMainMenu();
                 sensorName = "";
+            } else if (setPointLabel.isVisible()) {
+                disableAddEditSetPointVoltageMenu();
+                enableSetPointMenu(sensorName);
             }
         }
 
