@@ -925,7 +925,9 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == restartButton){
-            arduinoWrite("off");
+            if (ardAccess != null) {
+                arduinoWrite("off");
+            }
             System.exit(0);
         }
 
