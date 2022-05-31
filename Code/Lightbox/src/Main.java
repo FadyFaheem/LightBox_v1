@@ -58,16 +58,18 @@ public class Main extends JFrame implements ActionListener {
             "10000"
     };
 
-    private int pointInc, voltageInc, setPoint, voltage = 0;
-    int measurementCount = 0;
-    private boolean isDeleteSetPointEnabled;
+    private int measurementCount, pointInc, voltageInc, setPoint, voltage = 0;
+    private int setPointPageNum, setPointPageMaxNum;
+    private int editingSetPointNum = -1;
+    private boolean isDeleteSetPointEnabled, isEditSetPointEnabled;
     private JButton measurementTypeButton, lowerSetPointButton, higherSetPointButton,
             lowerIncrementSetPointButton, higherIncrementSetPointButton,
             lowerVoltageButton, higherVoltageButton,
             lowerIncrementVoltageButton, higherIncrementVoltageButton, addSetPointButton, testButton,
-            onButton, offButton;
+            onButton, offButton, setPointBackPageButton, setPointForwardPageButton;
 
-    private JLabel setPointLabel, setPointIncrementLabel, voltageLabel, voltageIncrementLabel, setPointIdentifier, voltageIdentifier, voltageConvertLabel;
+    private JLabel setPointLabel, setPointIncrementLabel, voltageLabel, voltageIncrementLabel,
+            setPointIdentifier, voltageIdentifier, voltageConvertLabel, bottomPageLabel;
 
     public Main() {
         GUISetup();
@@ -184,6 +186,17 @@ public class Main extends JFrame implements ActionListener {
 
         setPointButtons[2] = GUI.buttonSetup("buttonThree", 25, 650,225,250,125,this, true);
         MainWindow.add(setPointButtons[2]);
+
+        bottomPageLabel = GUI.labelSetup("Page # of #",20,418,450,200,100,true);
+        MainWindow.add(bottomPageLabel);
+
+        setPointForwardPageButton = GUI.buttonSetup(">", 25, 910, 225, 100,125,this, true);
+        MainWindow.add(setPointForwardPageButton);
+
+        setPointBackPageButton = GUI.buttonSetup("<",25,20,225,100,125,this,true);
+        MainWindow.add(setPointBackPageButton);
+
+
 
         // ADD SENSOR SET POINT MENU
 
@@ -377,6 +390,22 @@ public class Main extends JFrame implements ActionListener {
             }
         }
 
+        if ((setPoints.size() / 3.0) > 1) {
+            bottomPageLabel.setVisible(true);
+            setPointPageMaxNum = (int) ceil(setPoints.size() / 3.0);
+            setPointPageNum = 1;
+            bottomPageLabel.setText("Page " + setPointPageNum + " of " + setPointPageMaxNum);
+            setPointBackPageButton.setVisible(true);
+            setPointForwardPageButton.setVisible(true);
+        }
+
+        if (setPoints.size() == 0) {
+            deleteSetPoint.setEnabled(false);
+            editSetPoint.setEnabled(false);
+        } else {
+            deleteSetPoint.setEnabled(true);
+            editSetPoint.setEnabled(true);
+        }
     }
 
     public void tryReadingSetPointConfig() {
@@ -442,6 +471,9 @@ public class Main extends JFrame implements ActionListener {
         setPointButtons[2].setVisible(false);
         onButton.setVisible(false);
         offButton.setVisible(false);
+        bottomPageLabel.setVisible(false);
+        setPointBackPageButton.setVisible(false);
+        setPointForwardPageButton.setVisible(false);
     }
 
     public void enableAddEditSetPointVoltageMenu(){
@@ -461,8 +493,13 @@ public class Main extends JFrame implements ActionListener {
         higherIncrementVoltageButton.setVisible(true);
         voltageInc = 0;
         pointInc = 0;
-        voltage = 0;
-        setPoint = 0;
+        if (!isEditSetPointEnabled) {
+            voltage = 0;
+            setPoint = 0;
+            addSetPointButton.setText("Add");
+        } else {
+            addSetPointButton.setText("Save");
+        }
         setPointLabel.setText(setPoint + "");
         voltageLabel.setText(voltage + "");
         setPointIncrementLabel.setText(increment[pointInc]);
@@ -506,17 +543,31 @@ public class Main extends JFrame implements ActionListener {
             }
         }
 
-        setPointButtons[0].setVisible(false);
-        setPointButtons[1].setVisible(false);
-        setPointButtons[2].setVisible(false);
+        for (JButton buttons: setPointButtons) {
+            buttons.setVisible(false);
+        }
+
         if (setPoints.size() != 0 && setPointsVoltages.size() != 0) {
             deleteSetPoint.setEnabled(true);
             for (int i = 0; i < setPointButtons.length; i++) {
-                if (setPoints.size() > i){
+                if (setPoints.size() > (i + ((setPointPageNum - 1) * 3))) {
                     setPointButtons[i].setVisible(true);
-                    setPointButtons[i].setText(setPoints.get(i));
+                    setPointButtons[i].setText(setPoints.get(i + ((setPointPageNum - 1) * 3)));
                 }
             }
+        }
+
+        if ((!setPointButtons[0].isVisible() && !setPointButtons[1].isVisible() && !setPointButtons[2].isVisible()) && setPointPageNum != 1) {
+            setPointPageBack();
+        }
+
+        setPointPageMaxNum = (int) ceil(setPoints.size() / 3.0);
+        bottomPageLabel.setText("Page " + setPointPageNum + " of " + setPointPageMaxNum);
+
+        if (setPointPageNum == 1 && setPointPageMaxNum == 1) {
+            setPointForwardPageButton.setVisible(false);
+            setPointBackPageButton.setVisible(false);
+            bottomPageLabel.setVisible(false);
         }
     }
 
@@ -649,8 +700,47 @@ public class Main extends JFrame implements ActionListener {
     }
 
 
+    public void setPointPageBack() {
+        if (setPointPageNum > 1) {
+            setPointPageNum--;
+            bottomPageLabel.setText("Page " + setPointPageNum + " of " + setPointPageMaxNum);
+            for (var button: setPointButtons){
+                button.setVisible(false);
+            }
+
+            for (int i = 0; i < setPointButtons.length; i++){
+                if (setPoints.size() > (i + ((setPointPageNum - 1) * 3))) {
+                    setPointButtons[i].setVisible(true);
+                    setPointButtons[i].setText(setPoints.get(i + ((setPointPageNum - 1) * 3)));
+                }
+            }
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == setPointBackPageButton) {
+            setPointPageBack();
+        }
+
+        if (e.getSource() == setPointForwardPageButton) {
+            if (setPointPageNum < setPointPageMaxNum) {
+                setPointPageNum++;
+                bottomPageLabel.setText("Page " + setPointPageNum + " of " + setPointPageMaxNum);
+
+                for (var button: setPointButtons){
+                    button.setVisible(false);
+                }
+
+                for (int i = 0; i < setPointButtons.length; i++){
+                    if (setPoints.size() > (i + ((setPointPageNum - 1) * 3))) {
+                        setPointButtons[i].setVisible(true);
+                        setPointButtons[i].setText(setPoints.get(i + ((setPointPageNum - 1) * 3)));
+                    }
+                }
+            }
+        }
 
         if (e.getSource() == onButton) {
             if (ardAccess != null){
@@ -679,7 +769,18 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == setPointButtons[0]) {
-            if (isDeleteSetPointEnabled) {
+            if (isEditSetPointEnabled) {
+                for (int i = 0; i < setPoints.size(); i++){
+                    if (setPoints.get(i).equals(setPointButtons[0].getText())) {
+                        setPoint = Integer.parseInt(setPoints.get(i).replace((" " + measurementTypeButton.getText()), ""));
+                        voltage = Integer.parseInt(setPointsVoltages.get(i));
+                        editingSetPointNum = i;
+                        backButton.setEnabled(true);
+                        disableSetPointMenu();
+                        enableAddEditSetPointVoltageMenu();
+                    }
+                }
+            } else if (isDeleteSetPointEnabled) {
                 deleteSetPoint(0);
             } else {
                 turnLightControl(0);
@@ -687,7 +788,9 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == setPointButtons[1]) {
-            if (isDeleteSetPointEnabled) {
+            if (isEditSetPointEnabled) {
+
+            } else if (isDeleteSetPointEnabled) {
                 deleteSetPoint(1);
             } else {
                 turnLightControl(1);
@@ -695,7 +798,10 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == setPointButtons[2]) {
-            if (isDeleteSetPointEnabled) {
+
+            if (isEditSetPointEnabled) {
+
+            } else if (isDeleteSetPointEnabled) {
                 deleteSetPoint(2);
             } else {
                 turnLightControl(2);
@@ -703,11 +809,24 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == addSetPointButton) {
-            setPoints.add(setPointLabel.getText() + " " + measurementTypeButton.getText());
-            setPointsVoltages.add(voltageLabel.getText());
-            tryWritingSetPointConfig();
-            disableAddEditSetPointVoltageMenu();
-            enableSetPointMenu(sensorName);
+
+            if (isEditSetPointEnabled) {
+                setPoints.set(editingSetPointNum, setPointLabel.getText() + " " + measurementTypeButton.getText());
+                setPointsVoltages.set(editingSetPointNum, voltageLabel.getText());
+                editingSetPointNum = -1;
+                tryWritingSetPointConfig();
+                disableAddEditSetPointVoltageMenu();
+                enableSetPointMenu(sensorName);
+                addSetPoint.setEnabled(true);
+                offButton.setEnabled(true);
+                onButton.setEnabled(true);
+            } else {
+                setPoints.add(setPointLabel.getText() + " " + measurementTypeButton.getText());
+                setPointsVoltages.add(voltageLabel.getText());
+                tryWritingSetPointConfig();
+                disableAddEditSetPointVoltageMenu();
+                enableSetPointMenu(sensorName);
+            }
         }
 
         if (e.getSource() == lowerSetPointButton) {
@@ -782,7 +901,23 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == editSetPoint){
-            System.out.println(2);
+            if (!isEditSetPointEnabled) {
+                topLabel.setText("Edit Mode: ON");
+                isEditSetPointEnabled = true;
+                backButton.setEnabled(false);
+                deleteSetPoint.setEnabled(false);
+                addSetPoint.setEnabled(false);
+                offButton.setEnabled(false);
+                onButton.setEnabled(false);
+            } else if (isEditSetPointEnabled) {
+                topLabel.setText(sensorName + " Menu");
+                isEditSetPointEnabled = false;
+                backButton.setEnabled(true);
+                deleteSetPoint.setEnabled(true);
+                addSetPoint.setEnabled(true);
+                offButton.setEnabled(true);
+                onButton.setEnabled(true);
+            }
         }
 
         if (e.getSource() == deleteSetPoint) {
@@ -802,6 +937,10 @@ public class Main extends JFrame implements ActionListener {
                 offButton.setEnabled(true);
                 onButton.setEnabled(true);
                 topLabel.setText(sensorName + " Menu");
+                if (setPoints.size() == 0) {
+                    deleteSetPoint.setEnabled(false);
+                    editSetPoint.setEnabled(false);
+                }
             }
         }
 
@@ -921,6 +1060,12 @@ public class Main extends JFrame implements ActionListener {
                 }
                 disableAddEditSetPointVoltageMenu();
                 enableSetPointMenu(sensorName);
+                if (isEditSetPointEnabled) {
+                    isEditSetPointEnabled = false;
+                    addSetPoint.setEnabled(true);
+                    onButton.setEnabled(true);
+                    offButton.setEnabled(true);
+                }
             }
         }
 
