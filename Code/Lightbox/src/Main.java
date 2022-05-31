@@ -15,6 +15,7 @@ import static java.lang.Math.ceil;
 public class Main extends JFrame implements ActionListener {
 
     // START PAGE
+    private Container MainWindow;
     private JButton startButton, restartButton, connectButton;
     private JLabel logoPlaceHolder;
     private JComboBox<String> portList;
@@ -73,14 +74,17 @@ public class Main extends JFrame implements ActionListener {
 
     public Main() {
         GUISetup();
+
+
     }
 
     public void GUISetup(){
 
 
         // CONTAINER SETUP
-
-        Container MainWindow = getContentPane(); //need this to make JFrame work well
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setUndecorated(true);
+        MainWindow = getContentPane(); //need this to make JFrame work well
         MainWindow.setLayout(null); //do not use any layout managers
         MainWindow.setBackground(Color.decode("#212426")); //make the background of the window dark gray
         setDefaultCloseOperation(EXIT_ON_CLOSE); //actually end the program when clicking the close button
@@ -98,7 +102,7 @@ public class Main extends JFrame implements ActionListener {
         MainWindow.add(logoPlaceHolder);
 
         // BUTTONS
-        startButton = GUI.buttonSetup("Start", 60, 700, 100, 250, 100,this, true); // Initiates Button for setup and adds text
+        startButton = GUI.buttonSetup("Start", 60, 700, 100, 250, 100,this, false); // Initiates Button for setup and adds text
         MainWindow.add(startButton);
 
         restartButton = GUI.buttonSetup("Reset", 30, 750, 400, 150, 75,this, true);
@@ -1070,9 +1074,6 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == restartButton){
-            if (ardAccess != null) {
-                arduinoWrite("off");
-            }
             System.exit(0);
         }
 
