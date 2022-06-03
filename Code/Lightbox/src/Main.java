@@ -554,9 +554,9 @@ public class Main extends JFrame implements ActionListener {
         if (setPoints.size() != 0 && setPointsVoltages.size() != 0) {
             deleteSetPoint.setEnabled(true);
             for (int i = 0; i < setPointButtons.length; i++) {
-                if (setPoints.size() > (i + ((setPointPageNum - 1) * 3))) {
+                if (setPoints.size() > (i + ((setPointPageNum) * 3))) {
                     setPointButtons[i].setVisible(true);
-                    setPointButtons[i].setText(setPoints.get(i + ((setPointPageNum - 1) * 3)));
+                    setPointButtons[i].setText(setPoints.get(i + ((setPointPageNum) * 3)));
                 }
             }
         }
@@ -761,8 +761,6 @@ public class Main extends JFrame implements ActionListener {
         if (e.getSource() == testButton) {
             if (ardAccess != null) {
                 try {
-                    arduinoWrite("on");
-                    TimeUnit.SECONDS.sleep(1);
                     arduinoWrite("v");
                     TimeUnit.SECONDS.sleep(1);
                     arduinoWrite(voltageLabel.getText());
@@ -776,7 +774,10 @@ public class Main extends JFrame implements ActionListener {
             if (isEditSetPointEnabled) {
                 for (int i = 0; i < setPoints.size(); i++){
                     if (setPoints.get(i).equals(setPointButtons[0].getText())) {
-                        setPoint = Integer.parseInt(setPoints.get(i).replace((" " + measurementTypeButton.getText()), ""));
+                        String data = setPoints.get(i).replace((" " + "fc"), "");
+                        data = data.replace((" " + "lum"), "");
+                        data = data.replace((" " + "μW"), "");
+                        setPoint = Integer.parseInt(data);
                         voltage = Integer.parseInt(setPointsVoltages.get(i));
                         editingSetPointNum = i;
                         backButton.setEnabled(true);
@@ -793,7 +794,19 @@ public class Main extends JFrame implements ActionListener {
 
         if (e.getSource() == setPointButtons[1]) {
             if (isEditSetPointEnabled) {
-
+                for (int i = 0; i < setPoints.size(); i++){
+                    if (setPoints.get(i).equals(setPointButtons[1].getText())) {
+                        String data = setPoints.get(i).replace((" " + "fc"), "");
+                        data = data.replace((" " + "lum"), "");
+                        data = data.replace((" " + "μW"), "");
+                        setPoint = Integer.parseInt(data);
+                        voltage = Integer.parseInt(setPointsVoltages.get(i));
+                        editingSetPointNum = i;
+                        backButton.setEnabled(true);
+                        disableSetPointMenu();
+                        enableAddEditSetPointVoltageMenu();
+                    }
+                }
             } else if (isDeleteSetPointEnabled) {
                 deleteSetPoint(1);
             } else {
@@ -804,7 +817,19 @@ public class Main extends JFrame implements ActionListener {
         if (e.getSource() == setPointButtons[2]) {
 
             if (isEditSetPointEnabled) {
-
+                for (int i = 0; i < setPoints.size(); i++){
+                    if (setPoints.get(i).equals(setPointButtons[2].getText())) {
+                        String data = setPoints.get(i).replace((" " + "fc"), "");
+                        data = data.replace((" " + "lum"), "");
+                        data = data.replace((" " + "μW"), "");
+                        setPoint = Integer.parseInt(data);
+                        voltage = Integer.parseInt(setPointsVoltages.get(i));
+                        editingSetPointNum = i;
+                        backButton.setEnabled(true);
+                        disableSetPointMenu();
+                        enableAddEditSetPointVoltageMenu();
+                    }
+                }
             } else if (isDeleteSetPointEnabled) {
                 deleteSetPoint(2);
             } else {
@@ -1066,6 +1091,7 @@ public class Main extends JFrame implements ActionListener {
                 enableSetPointMenu(sensorName);
                 if (isEditSetPointEnabled) {
                     isEditSetPointEnabled = false;
+                    editingSetPointNum = -1;
                     addSetPoint.setEnabled(true);
                     onButton.setEnabled(true);
                     offButton.setEnabled(true);
