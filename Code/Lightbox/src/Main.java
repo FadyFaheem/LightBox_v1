@@ -82,8 +82,6 @@ public class Main extends JFrame implements ActionListener {
 
 
         // CONTAINER SETUP
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setUndecorated(true);
         MainWindow = getContentPane(); //need this to make JFrame work well
         MainWindow.setLayout(null); //do not use any layout managers
         MainWindow.setBackground(Color.decode("#212426")); //make the background of the window dark gray
