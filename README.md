@@ -1,4 +1,4 @@
-# NTexcalLightBox
+# Lightbox v1 
 
 Code for advanced lightbox.
 written in java.
